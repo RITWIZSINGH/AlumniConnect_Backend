@@ -8,7 +8,18 @@ export function initHttp(app: Express) {
     app.get("/test", (req: Request, res: Response) => {
         res.json(data);
     });
+    app.get("/search", (req: Request, res: Response) => {
+        const query = (req.query.q as string || "").toLowerCase();
 
+        const matchingItems = data.filter(item => {
+            
+            return Object.values(item).some(value =>
+                value && value.toString().toLowerCase().includes(query)
+            );
+        });
+
+        res.json({ items: matchingItems });
+    });
     app.post("/ran", (req: Request, res: Response) => {
         const excludeIndexes: number[] = req.body.indexes || [];
         const maxToReturn: number = 10;
