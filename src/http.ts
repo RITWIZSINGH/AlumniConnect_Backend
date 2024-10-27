@@ -2,28 +2,45 @@ import { Express, Request, Response } from "express";
 import express from "express";
 import data from "./NithAlumni";
 
+// Define Alumni type if not already imported
+interface Alumni {
+    NAME: string;
+    COMPANY: string;
+    BATCH: number;
+    PIC: string;
+    PROFILE: string;
+    EMAIL: string;
+    FIELD: string;
+    BRANCH: string | null;
+}
+
 export function initHttp(app: Express) {
     app.use(express.json());
 
     app.get("/test", (req: Request, res: Response) => {
         res.json(data);
     });
+
     app.get("/search", (req: Request, res: Response) => {
         const query = (req.query.q as string || "").toLowerCase();
 
-        const matchingItems = data.filter(item => {
-            
-            return Object.values(item).some(value =>
-                value && value.toString().toLowerCase().includes(query)
-            );
+        // Define the fields to include in the search
+        const searchableFields: (keyof Alumni)[] = ["NAME", "COMPANY", "BATCH", "FIELD", "BRANCH"];
+
+        const matchingItems = data.filter((item: Alumni) => {
+            return searchableFields.some(field => {
+                const value = item[field as keyof Alumni]; // Type assertion here
+                return value && value.toString().toLowerCase().includes(query);
+            });
         });
 
         res.json({ items: matchingItems });
     });
+
     app.post("/ran", (req: Request, res: Response) => {
         const excludeIndexes: number[] = req.body.indexes || [];
         const maxToReturn: number = 10;
-        
+
         // Create an array of available indexes
         const availableIndexes = data.reduce((acc, _, index) => {
             if (!excludeIndexes.includes(index)) {
