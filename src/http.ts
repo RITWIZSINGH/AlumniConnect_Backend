@@ -8,6 +8,7 @@ export function initHttp(app: Express) {
     app.get("/test", (req: Request, res: Response) => {
         res.json(data);
     });
+    
     app.get("/search", (req: Request, res: Response) => {
         const query = (req.query.q as string || "").toLowerCase();
 
@@ -20,6 +21,19 @@ export function initHttp(app: Express) {
 
         res.json({ items: matchingItems });
     });
+    app.post("/filter", (req: Request, res: Response) => {
+        console.log(req.body);
+        const matchingItems = data.filter(item => {
+            const matchField = req.body.field.length === 0 || req.body.field.includes(item.FIELD);
+            const matchesBranch = req.body.branch.length === 0 || req.body.branch.includes(item.BRANCH);
+            const matchesBatch = req.body.batch.length === 0 || req.body.batch.includes(item.BATCH);
+           
+            return matchesBranch && matchesBatch&& matchField;
+        });
+    
+        res.json({ items: matchingItems });
+    });
+
     app.post("/ran", (req: Request, res: Response) => {
         const excludeIndexes: number[] = req.body.indexes || [];
         const maxToReturn: number = 10;
@@ -47,4 +61,5 @@ export function initHttp(app: Express) {
             remaining: availableIndexes.length - selectedIndexes.length
         });
     });
+    
 }
