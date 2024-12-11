@@ -1,6 +1,7 @@
 import { Express, Request, Response } from "express";
 import express from "express";
 import data from "./NithAlumni";
+import { Student } from "./db/schema";
 
 export function initHttp(app: Express) {
     app.use(express.json());
@@ -8,7 +9,25 @@ export function initHttp(app: Express) {
     app.get("/test", (req: Request, res: Response) => {
         res.json(data);
     });
-    
+    app.post("/addStudent", (req: Request, res: Response) => {
+        const { RollNo, Name, Branch, Batch, Resume, Email, LinkedIn } = req.body;
+        console.log(req.body);
+        if (!RollNo || !Name || !Branch || !Batch || !Resume || !Email) {
+            res.status(400).json({ error: "Missing required fields" });
+            return;
+        }
+        const newStudent= new Student({ RollNo, Name, Branch, Batch, Resume, Email, LinkedIn });
+        newStudent.save().then(() => {
+            res.json({ success: true });
+        }).catch(err => {
+            res.status(500).json({ error: err.message });
+        });
+    });
+    app.get("/studentData", async (req: Request, res: Response) => {
+        const query = (req.query.email as string || "").toLowerCase();
+        const studentData= await Student.find({Email: query});
+        res.json({ items: studentData });
+    });
     app.get("/search", (req: Request, res: Response) => {
         const query = (req.query.q as string || "").toLowerCase();
 
