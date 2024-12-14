@@ -1,4 +1,4 @@
-export interface Student {
+export interface Students {
     RollNo: string,
     Name: string,
     Branch: string,
