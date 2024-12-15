@@ -8,6 +8,7 @@ import { sendMail } from "./smtp/mail";
 
 export function initHttp(app: Express) {
     app.use(express.json());
+    
     const transporter = nodemailer.createTransport({
         service: "Gmail", // Use your email service provider
         auth: {
